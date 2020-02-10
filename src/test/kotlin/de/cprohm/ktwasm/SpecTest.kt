@@ -92,9 +92,8 @@ class TestWasmSpecs {
 fun addSpecs(suite: TestSuite, specs: List<String>, ignore: Set<String>) {
     for (name in specs) {
         val spec = try {
-             parseSpec(LocalFileLoader(), name, ignore = ignore)
-        }
-        catch (e: FileNotFoundError) {
+            parseSpec(LocalFileLoader(), name, ignore = ignore)
+        } catch (e: FileNotFoundError) {
             continue
         }
         val test = makeTestCase(name, spec)
@@ -102,7 +101,7 @@ fun addSpecs(suite: TestSuite, specs: List<String>, ignore: Set<String>) {
     }
 }
 
-class LocalFileLoader: FileLoader {
+class LocalFileLoader : FileLoader {
     override fun readBytes(path: String): ByteArray =
         javaClass.classLoader!!.getResourceAsStream(path)?.readBytes() ?: throw FileNotFoundError(path)
 }

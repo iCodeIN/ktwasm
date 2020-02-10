@@ -11,11 +11,11 @@ fun parseElementSection(contents: ModuleContents, parser: ByteParser) {
 
 fun parseElement(parser: ByteParser, types: List<FuncType>): ElementDef {
     val table = parseU32(parser)
-    if(table != 0) {
+    if (table != 0) {
         throw Error()
     }
 
-    assert(table == 0) { "ATM only table 0 can be addressed (found: $table)"}
+    assert(table == 0) { "ATM only table 0 can be addressed (found: $table)" }
 
     val offset = parseExpression(parser, types)
     val init = parseVector(parser, ::parseU32)

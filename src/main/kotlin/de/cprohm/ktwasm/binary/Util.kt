@@ -100,7 +100,7 @@ fun <T> parseVector(parser: ByteParser, subparser: (ByteParser) -> T): List<T> {
     val num = parser.readUnsigned()
     val result: MutableList<T> = mutableListOf()
 
-    for(index in 0 until num) {
+    for (index in 0 until num) {
         val item = try {
             subparser(parser)
         } catch (e: Throwable) {

@@ -21,7 +21,7 @@ sealed class WasmValue {
             Type.F64 -> F64Value(0.0)
         }
 
-        fun wrap(obj: Any): WasmValue = when(obj) {
+        fun wrap(obj: Any): WasmValue = when (obj) {
             is I32Value -> obj
             is I64Value -> obj
             is F32Value -> obj
@@ -34,7 +34,7 @@ sealed class WasmValue {
         }
     }
 
-    fun unrwap(): Any? = when(this) {
+    fun unrwap(): Any? = when (this) {
         is I32Value -> this.value
         is I64Value -> this.value
         is F32Value -> this.value

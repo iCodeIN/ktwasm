@@ -50,6 +50,7 @@ data class ModuleContents(
     var code: List<Code>? = null,
     var data: List<DataDef>? = null
 )
+
 data class MemoryDef(val min: Int, val max: Int)
 
 data class Code(val locals: List<Type>, val expression: List<Instruction>)

@@ -12,6 +12,7 @@ import java.net.URL
 
 // re-export the main types
 typealias Namespace = Namespace
+
 typealias Memory = Memory
 typealias FunctionRef = FunctionRef
 typealias GlobalRef = GlobalRef

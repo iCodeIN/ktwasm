@@ -5,4 +5,4 @@ fun parseMemorySection(contents: ModuleContents, parser: ByteParser) {
     contents.memories = parseVector(parser, ::parseMemory)
 }
 
-fun parseMemory(parser: ByteParser): MemoryDef = parseLimits(parser).let{ MemoryDef(it.first, it.second) }
+fun parseMemory(parser: ByteParser): MemoryDef = parseLimits(parser).let { MemoryDef(it.first, it.second) }
