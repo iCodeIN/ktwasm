@@ -45,6 +45,55 @@ interface Namespace {
 }
 
 /**
+ * A single nested hierarchy of importable objects
+ */
+interface Environment {
+    fun lookupGlobal(module: String, name: String, type: Type?, mutable: Boolean?): GlobalRef {
+        throw Error("Cannot find global $module.$name")
+    }
+
+    /**
+     * Lookup a function in this namespace
+     */
+    fun lookupFunction(module: String, name: String, signature: Signature?): FunctionRef {
+        throw Error("Cannot find function $module.$name")
+    }
+
+    /**
+     * Loopup a memory in this namespace
+     */
+    fun lookupMemory(module: String, name: String, min: Int, max: Int): Memory {
+        throw Error("Cannot find memory $name")
+    }
+
+    fun lookupTable(module: String, name: String, min: Int, max: Int): Table {
+        throw Error("Cannot find table $name")
+    }
+}
+
+/**
+ * A baseline Environment based on a fixed map of Namespaces
+ */
+class MapEnvironment(val namespaces: Map<String, Namespace>) : Environment {
+    private fun get(module: String): Namespace =
+        namespaces[module] ?: throw Error("Cannot find module $module in ${namespaces.keys}")
+
+    override fun lookupFunction(module: String, name: String, signature: Signature?): FunctionRef =
+        get(module).lookupFunction(name, signature)
+
+    override fun lookupGlobal(module: String, name: String, type: Type?, mutable: Boolean?): GlobalRef =
+        get(module).lookupGlobal(name, type, mutable)
+
+    override fun lookupMemory(module: String, name: String, min: Int, max: Int): Memory =
+        get(module).lookupMemory(name, min, max)
+
+    override fun lookupTable(module: String, name: String, min: Int, max: Int): Table =
+        get(module).lookupTable(name, min, max)
+}
+
+class EmptyEnvironment : Environment
+
+/**
  * Reference to a global stored in a namespace
  */
 interface GlobalRef {

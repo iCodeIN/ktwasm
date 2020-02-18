@@ -90,7 +90,7 @@ fun makeLoadModuleAction(fileloader: FileLoader, filename: String, file: String,
             val fullpath = File("binary", filename).toString()
             val data = fileloader.readBytes(fullpath)
 
-            env[""] = parseBinaryModule(filename, data, env).also { it.init() }
+            env[""] = parseBinaryModule(filename, data, MapEnvironment(env)).also { it.init() }
         } catch (e: Throwable) {
             throw Error("Could not load module ($file:$line)", e)
         }
@@ -98,11 +98,7 @@ fun makeLoadModuleAction(fileloader: FileLoader, filename: String, file: String,
 
 fun makeRegisterModuleAction(name: String, file: String, line: Int): Step =
     { env ->
-        if (env[""] == null) {
-            throw Error("No module to register ($file:$line)")
-        } else {
-            env[name] = env[""]!!
-        }
+        env[name] = env[""] ?: throw Error("No module to register ($file:$line)")
     }
 
 fun makeSideEffectAction(action: Action, file: String, line: Int): Step =

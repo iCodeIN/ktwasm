@@ -1,7 +1,10 @@
 package de.cprohm.ktwasm.api
 
+import de.cprohm.ktwasm.base.*
+import de.cprohm.ktwasm.base.Environment
 import de.cprohm.ktwasm.base.FunctionRef
 import de.cprohm.ktwasm.base.GlobalRef
+import de.cprohm.ktwasm.base.MapEnvironment
 import de.cprohm.ktwasm.base.Memory
 import de.cprohm.ktwasm.base.Namespace
 import de.cprohm.ktwasm.base.Table
@@ -13,16 +16,19 @@ import java.net.URL
 // re-export the main types
 typealias Namespace = Namespace
 
+typealias Environment = Environment
+typealias MapEnvironment = MapEnvironment
+
 typealias Memory = Memory
 typealias FunctionRef = FunctionRef
 typealias GlobalRef = GlobalRef
 typealias Table = Table
 typealias WasmValue = WasmValue
 
-fun parseModule(url: URL, env: Map<String, Namespace> = mapOf()): Namespace =
+fun parseModule(url: URL, env: Environment = EmptyEnvironment()): Namespace =
     parseBinaryModule(url.path, url.readBytes(), env)
 
-fun parseModule(file: File, env: Map<String, Namespace> = mapOf()): Namespace =
+fun parseModule(file: File, env: Environment = EmptyEnvironment()): Namespace =
     parseBinaryModule(file.name, file.readBytes(), env)
 
 operator fun FunctionRef.invoke(vararg arguments: Any): Any? =

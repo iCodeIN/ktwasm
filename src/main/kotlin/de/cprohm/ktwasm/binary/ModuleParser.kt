@@ -7,7 +7,7 @@ import de.cprohm.ktwasm.interpreter.Module
 import de.cprohm.ktwasm.interpreter.Function
 import de.cprohm.ktwasm.interpreter.Instruction
 
-fun parseBinaryModule(name: String, data: ByteArray, env: Map<String, Namespace> = mapOf()): Module {
+fun parseBinaryModule(name: String, data: ByteArray, env: Environment = EmptyEnvironment()): Module {
     val magic = byteArrayOf(0x00, 0x61, 0x73, 0x6D)
     val version = byteArrayOf(0x01, 0x00, 0x00, 0x00)
 
@@ -45,7 +45,7 @@ fun parseBinaryModule(name: String, data: ByteArray, env: Map<String, Namespace>
     return buildModule(name, contents, env)
 }
 
-fun buildModule(name: String, contents: ModuleContents, env: Map<String, Namespace>): Module {
+fun buildModule(name: String, contents: ModuleContents, env: Environment): Module {
     val globals = buildGlobals(contents, env)
     val memory = buildMemory(contents, globals, env)
     val importedFunctions = buildImportedFunctions(contents, env)
@@ -73,7 +73,7 @@ fun buildModule(name: String, contents: ModuleContents, env: Map<String, Namespa
 
 fun buildImportedFunctions(
     contents: ModuleContents,
-    env: Map<String, Namespace>
+    env: Environment
 ): List<FunctionRef> {
     val imports = contents.imports ?: listOf()
     val types = contents.types ?: listOf()
@@ -91,8 +91,7 @@ fun buildImportedFunctions(
             parameters = type.args
         )
 
-        val namespace = env[import.module] ?: throw Error("Cannot lookup module ${import.module}")
-        val ref = namespace.lookupFunction(import.name, signature)
+        val ref = env.lookupFunction(import.module, import.name, signature)
         refs.add(ref)
     }
 
@@ -146,7 +145,7 @@ fun buildExports(contents: ModuleContents): List<Export> {
 fun buildMemory(
     contents: ModuleContents,
     globals: List<GlobalRef>,
-    env: Map<String, Namespace>
+    env: Environment
 ): Memory {
     val memories = contents.memories ?: listOf()
     val memoryImports = (contents.imports ?: listOf()).filterIsInstance<MemoryImportDef>()
@@ -159,8 +158,7 @@ fun buildMemory(
     val result = when {
         memoryImports.isNotEmpty() -> {
             val import = memoryImports.first()
-            val namespace = env[import.module] ?: throw Error("Cannot resolve module ${import.module}")
-            namespace.lookupMemory(import.name, import.min, import.max)
+            env.lookupMemory(import.module, import.name, import.min, import.max)
         }
         memories.isNotEmpty() -> memories[0].let { Memory(min = it.min, max = it.max) }
         else -> {
@@ -181,16 +179,14 @@ fun buildMemory(
     return result
 }
 
-fun buildGlobals(contents: ModuleContents, env: Map<String, Namespace>): List<GlobalRef> {
+fun buildGlobals(contents: ModuleContents, env: Environment): List<GlobalRef> {
     val globals = contents.globals ?: listOf()
     val imports = contents.imports ?: listOf()
 
     val result: MutableList<GlobalRef> = mutableListOf()
 
     for (import in imports.filterIsInstance<GlobalImportDef>()) {
-        val namespace =
-            env[import.module] ?: throw Error("Cannot resolve import from ${import.module}")
-        val global = namespace.lookupGlobal(import.name, import.type, import.mutable)
+        val global = env.lookupGlobal(import.module, import.name, import.type, import.mutable)
         result.add(global)
     }
 
@@ -212,7 +208,7 @@ fun buildGlobals(contents: ModuleContents, env: Map<String, Namespace>): List<Gl
     return result
 }
 
-fun buildTargetTable(contents: ModuleContents, env: Map<String, Namespace>): Table {
+fun buildTargetTable(contents: ModuleContents, env: Environment): Table {
     val tables = contents.tables ?: listOf()
     val tableImports = (contents.imports ?: listOf()).filterIsInstance<TableImportDef>()
 
@@ -227,8 +223,7 @@ fun buildTargetTable(contents: ModuleContents, env: Map<String, Namespace>): Tab
         }
         tableImports.isNotEmpty() -> {
             val import = tableImports.first()
-            val namespace = env[import.module] ?: throw Error("Cannot resolve module ${import.module}")
-            namespace.lookupTable(import.name, import.min, import.max)
+            env.lookupTable(import.module, import.name, import.min, import.max)
         }
         else -> Table()
     }
