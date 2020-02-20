@@ -13,9 +13,12 @@ fun call(module: Module, func: Function, args: List<WasmValue>): WasmValue {
         }
     }
 
-    val ctx = ExecutionContext(module)
-    ctx.locals.addAll(args)
-    ctx.locals.addAll(func.locals.map { WasmValue.fromType(it) })
+    val sizeLocals = args.size + func.locals.size
+    val ctx = ExecutionContext(module, sizeLocals)
+
+    for ((idx, arg) in args.withIndex()) {
+        ctx.locals[idx] = arg.toLong()
+    }
 
     // TODO: fix this ...
     val instructions = func.instructions.plusElement(EndBlock())
@@ -30,22 +33,52 @@ fun call(module: Module, func: Function, args: List<WasmValue>): WasmValue {
 
     return when (func.result) {
         Type.Void -> UnitValue()
-        Type.I32 -> ctx.stack.last().assertI32()
-        Type.I64 -> ctx.stack.last().assertI64()
-        Type.F32 -> ctx.stack.last().assertF32()
-        Type.F64 -> ctx.stack.last().assertF64()
+        Type.I32 -> ctx.stackLast().toI32Value()
+        Type.I64 -> ctx.stackLast().toI64Value()
+        Type.F32 -> ctx.stackLast().toF32Value()
+        Type.F64 -> ctx.stackLast().toF64Value()
     }
 }
 
-class ExecutionContext(val module: Module) {
-    val stack: MutableList<WasmValue> = mutableListOf()
+class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
+    var stack: LongArray = LongArray(128)
+    var stackSizeValue: Int = 0
+
+    fun stackLast(): Long = if (stackSizeValue >= 1) {
+        stack[stackSizeValue - 1]
+    } else {
+        throw Error()
+    }
+
+    fun stackSize(): Int = stackSizeValue
+
+    private fun push(value: Long) {
+        if (stackSizeValue == stack.size) {
+            stack = stack.copyInto(LongArray(2 * stack.size))
+        }
+        stack[stackSizeValue] = value
+        stackSizeValue += 1
+    }
+
+    fun pop(): Long = if (stackSizeValue == 0) {
+        throw Error()
+    } else {
+        stackSizeValue -= 1;
+        stack[stackSizeValue]
+    }
+
+    private fun pushI32(value: Int) = push(value.toLong())
+    private fun pushI64(value: Long) = push(value)
+    private fun pushF32(value: Float) = push(value.toBits().toLong())
+    private fun pushF64(value: Double) = push(value.toBits())
+
     val blocks: MutableList<BlockInstruction> = mutableListOf()
     private val stackDepth: MutableList<Int> = mutableListOf()
-    val locals: MutableList<WasmValue> = mutableListOf()
+    val locals: LongArray = LongArray(sizeLocals)
 
     private fun pushBlock(block: BlockInstruction) {
         blocks.add(block)
-        stackDepth.add(stack.size)
+        stackDepth.add(stackSize())
     }
 
     private fun popBlock(label: Int, modifyStack: Boolean = true): BlockInstruction {
@@ -64,15 +97,15 @@ class ExecutionContext(val module: Module) {
         }
 
         val result = when (block.type) {
-            Type.I32 -> pop().assertI32()
-            Type.I64 -> pop().assertI64()
-            Type.F32 -> pop().assertF32()
-            Type.F64 -> pop().assertF64()
+            Type.I32 -> pop()
+            Type.I64 -> pop()
+            Type.F32 -> pop()
+            Type.F64 -> pop()
             Type.Void -> null
         }
 
-        while (stack.size > targetDepth) {
-            stack.removeAt(stack.size - 1)
+        while (stackSize() > targetDepth) {
+            pop()
         }
         result?.let { push(result) }
 
@@ -92,7 +125,11 @@ class ExecutionContext(val module: Module) {
     }
 
     private fun execute(instructionPointer: Int, instruction: Instruction): Int {
-        val args = (0 until instruction.arity).map { pop() }.toList()
+        val args = LongArray(4)
+        for (idx in 0 until instruction.arity) {
+            args[idx] = pop()
+        }
+
         var nextInstruction = instructionPointer + 1
 
         @Suppress("UNUSED_VARIABLE")
@@ -192,11 +229,12 @@ class ExecutionContext(val module: Module) {
             // 0x23
             is GlobalGet -> {
                 val value = module.refGlobal(instruction.reference).get()
-                push(value ?: throw Error("Global ${instruction.reference} not initialized"))
+                push(value?.toLong() ?: throw Error("Global ${instruction.reference} not initialized"))
             }
             // 0x24
             is GlobalSet -> {
-                module.refGlobal(instruction.reference).set(args[0])
+                val global = module.refGlobal(instruction.reference)
+                global.set(args[0].toType(global.type()))
             }
 
             // 5.4.3 memory instructions
@@ -629,28 +667,12 @@ class ExecutionContext(val module: Module) {
         return nextInstruction
     }
 
-    private fun push(value: WasmValue) {
-        stack.add(value)
-    }
-
     private fun pushLocal(idx: Int) {
-        // TODO: perform error checking
         push(locals[idx])
     }
 
-    private fun setLocal(idx: Int, value: WasmValue) {
+    private fun setLocal(idx: Int, value: Long) {
         locals[idx] = value
-    }
-
-    private fun pushI32(value: Int) = stack.add(I32Value(value)).let { Unit }
-    private fun pushI64(value: Long) = stack.add(I64Value(value)).let { Unit }
-    private fun pushF32(value: Float) = stack.add(F32Value(value)).let { Unit }
-    private fun pushF64(value: Double) = stack.add(F64Value(value)).let { Unit }
-
-    fun pop(): WasmValue {
-        val result = stack.last()
-        stack.removeAt(stack.size - 1)
-        return result
     }
 
     private fun executeCall(function: FunctionRef) {
@@ -659,19 +681,13 @@ class ExecutionContext(val module: Module) {
         // NOTE pop in reverse order
         val arguments = type.parameters
             .reversed()
-            .mapIndexed { index, paramType ->
-                val res = pop()
-                if (res.type != paramType) {
-                    throw Error("Invalid function parameter $index expected $paramType, found: ${res.type}")
-                }
-                res
-            }
+            .map { pop().toType(it) }
             .reversed()
 
         val result = function.call(arguments)
 
         if (result !is UnitValue) {
-            push(result)
+            push(result.toLong())
         }
     }
 }
@@ -680,3 +696,30 @@ class ExecutionError(instructionPointer: Int, instruction: Instruction, e: Throw
     Error("Error during execution of $instruction @ $instructionPointer: $e", e)
 
 class TrapError : Error()
+
+
+fun Long.toI32(): Int = this.toInt()
+fun Long.toI64(): Long = this
+fun Long.toF32(): Float = Float.fromBits(this.toInt())
+fun Long.toF64(): Double = Double.fromBits(this)
+
+fun Long.toI32Value(): I32Value = I32Value(this.toI32())
+fun Long.toI64Value(): I64Value = I64Value(this.toI64())
+fun Long.toF32Value(): F32Value = F32Value(this.toF32())
+fun Long.toF64Value(): F64Value = F64Value(this.toF64())
+
+fun WasmValue.toLong(): Long = when (this) {
+    is I32Value -> this.value.toLong()
+    is I64Value -> this.value
+    is F32Value -> this.value.toRawBits().toLong()
+    is F64Value -> this.value.toRawBits()
+    else -> throw Error()
+}
+
+fun Long.toType(type: Type): WasmValue = when (type) {
+    Type.I32 -> this.toI32Value()
+    Type.I64 -> this.toI64Value()
+    Type.F32 -> this.toF32Value()
+    Type.F64 -> this.toF64Value()
+    else -> throw Error()
+}

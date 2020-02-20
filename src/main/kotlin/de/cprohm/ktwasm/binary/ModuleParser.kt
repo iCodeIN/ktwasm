@@ -191,7 +191,7 @@ fun buildGlobals(contents: ModuleContents, env: Environment): List<GlobalRef> {
     }
 
     for (def in globals) {
-        val value = evaluateGlobal(def.init, Module(name = "<constexpr>", globals = result))
+        val value = evaluateGlobal(def.init, Module(name = "<constexpr>", globals = result), def.type)
         if (value.type != def.type) {
             throw Error("Incompatible types: ${def.type} != ${value.type}")
         }
@@ -241,14 +241,14 @@ fun fillTable(module: Module, contents: ModuleContents) {
     }
 }
 
-fun evaluateGlobal(expr: List<Instruction>, module: Module): WasmValue {
+fun evaluateGlobal(expr: List<Instruction>, module: Module, type: Type): WasmValue {
     val ctx = ExecutionContext(module)
     ctx.execute(expr)
-    return ctx.pop()
+    return ctx.pop().toType(type)
 }
 
 fun evaluateOffsset(expr: List<Instruction>, module: Module): Int {
     val ctx = ExecutionContext(module)
     ctx.execute(expr)
-    return ctx.stack.last().toI32()
+    return ctx.stackLast().toI32()
 }

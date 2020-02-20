@@ -124,4 +124,6 @@ data class Global(val mutable: Boolean = true, val type: Type, var value: WasmVa
         }
         this.value = value
     }
+
+    override fun type(): Type = type
 }

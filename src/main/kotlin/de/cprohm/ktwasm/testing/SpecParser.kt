@@ -198,14 +198,10 @@ fun parseJsonValue(node: JsonNode): WasmValue {
         "i32" -> I32Value(data?.toInt() ?: 0)
         "i64" -> I64Value(data ?: 0)
         "f32" -> F32Value(data?.let {
-            Float.fromBits(
-                it.toInt()
-            )
+            Float.fromBits(it.toInt())
         } ?: Float.NaN)
         "f64" -> F64Value(data?.let {
-            Double.fromBits(
-                it
-            )
+            Double.fromBits(it)
         } ?: Double.NaN)
         else -> throw Error("Unknown value type $type")
     }

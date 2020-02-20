@@ -99,6 +99,7 @@ class EmptyEnvironment : Environment
 interface GlobalRef {
     fun set(value: WasmValue)
     fun get(): WasmValue?
+    fun type(): Type
 }
 
 /**
