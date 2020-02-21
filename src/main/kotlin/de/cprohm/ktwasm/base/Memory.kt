@@ -49,10 +49,10 @@ class Memory(var min: Int, val max: Int, var data: ByteArray = ByteArray(PAGE_SI
     }
 
     fun storeF32(address: Int, offset: Int, data: Float) =
-        storeI32(safeOffset(address, offset), data.toBits())
+        storeI32(safeOffset(address, offset), data.toRawBits())
 
     fun storeF64(address: Int, offset: Int, data: Double) =
-        storeI64(safeOffset(address, offset), data.toBits())
+        storeI64(safeOffset(address, offset), data.toRawBits())
 
     fun loadF32(address: Int, offset: Int): Float = loadF32(safeOffset(address, offset))
     fun loadF64(address: Int, offset: Int): Double = loadF64(safeOffset(address, offset))

@@ -43,22 +43,9 @@ class TestWasmSpecs {
             "conversions:216", "conversions:217", "conversions:218", "conversions:235",
             "conversions:236", "conversions:237", "conversions:238", "conversions:239",
             "conversions:240", "conversions:241", "conversions:242",
-            // the nan with extra data is not supported ATM
-            "conversions:434", "conversions:443", "conversions:444", "conversions:445",
-            "conversions:450", "conversions:459", "conversions:460", "conversions:461",
             // TODO: investigate the reason for these failures
             // unclear float errors
-            "float_exprs:1392", "float_exprs:1394", "float_exprs:1395", "float_exprs:2335",
-            "float_exprs:2336", "float_exprs:2337", "float_exprs:2338", "float_exprs:2345",
-            "float_exprs:2346", "float_exprs:2347", "float_exprs:2348",
-            // NAN related errors
-            "float_literals:107", "float_literals:109", "float_literals:110",
-            "float_literals:111", "float_literals:112", "float_literals:113",
-            "float_literals:139", "float_literals:141", "float_literals:142",
-            "float_literals:143", "float_literals:144", "float_literals:145",
-            // "NANs are canonicalized by fromBits"
-            "float_memory:21", "float_memory:46", "float_memory:73",
-            "float_memory:98", "float_memory:125", "float_memory:150",
+            "float_exprs:1392", "float_exprs:1394", "float_exprs:1395",
             // Integer overflows are not checked atm
             "i32:64", "i64:64",
             // missing checks

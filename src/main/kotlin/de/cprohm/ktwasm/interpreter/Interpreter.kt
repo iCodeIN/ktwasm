@@ -69,8 +69,8 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
 
     private fun pushI32(value: Int) = push(value.toLong())
     private fun pushI64(value: Long) = push(value)
-    private fun pushF32(value: Float) = push(value.toBits().toLong())
-    private fun pushF64(value: Double) = push(value.toBits())
+    private fun pushF32(value: Float) = push(value.toRawBits().toLong())
+    private fun pushF64(value: Double) = push(value.toRawBits())
 
     val blocks: MutableList<BlockInstruction> = mutableListOf()
     private val stackDepth: MutableList<Int> = mutableListOf()
@@ -655,9 +655,9 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
             // 0xBB
             is F64PromoteF32 -> pushF64(args[0].toF32().toDouble())
             // 0xBC
-            is I32ReinterpretF32 -> pushI32(args[0].toF32().toBits())
+            is I32ReinterpretF32 -> pushI32(args[0].toF32().toRawBits())
             // 0xBD
-            is I64ReinterpretF64 -> pushI64(args[0].toF64().toBits())
+            is I64ReinterpretF64 -> pushI64(args[0].toF64().toRawBits())
             // 0xBE
             is F32ReinterpretI32 -> pushF32(Float.fromBits(args[0].toI32()))
             // 0xBE
