@@ -40,7 +40,7 @@ class Memory(var min: Int, val max: Int, var data: ByteArray = ByteArray(PAGE_SI
     }
 
     fun load(start: Int, length: Int): ByteArray {
-        // TODO: check arguments
+        requireRange(start, start + length)
         val result = ByteArray(length)
         for (offset in 0 until length) {
             result[offset] = this.data[start + offset]
@@ -111,10 +111,10 @@ class Memory(var min: Int, val max: Int, var data: ByteArray = ByteArray(PAGE_SI
      */
     private fun requireRange(start: Int, end: Int) {
         val startValid = (start >= 0) && (start < this.data.size)
-        val endValid = (end >= 0 && end <= this.data.size)
+        val endValid = (end >= 0) && (end <= this.data.size)
 
         if (!startValid || !endValid) {
-            throw IndexOutOfBoundsException()
+            throw IndexOutOfBoundsException("Cannot access memory range [$start:$end], available [0:${this.data.size}]")
         }
     }
 
@@ -126,24 +126,32 @@ class Memory(var min: Int, val max: Int, var data: ByteArray = ByteArray(PAGE_SI
     private fun loadI8(address: Int): Byte = this.data[address]
 
     // Short does not seem to support bitwise and
-    private fun loadI16(address: Int): Short = (
-            ((this.data[address + 0].toInt() and 0xFF) shl 0) +
-                    ((this.data[address + 1].toInt() and 0xFF) shl 8)
-            ).toShort()
+    private fun loadI16(address: Int): Short {
+        requireRange(address, address + 2)
+        val raw = ((this.data[address + 0].toInt() and 0xFF) shl 0) +
+                ((this.data[address + 1].toInt() and 0xFF) shl 8)
+        return raw.toShort()
+    }
 
-    private fun loadI32(address: Int): Int = ((this.data[address + 0].toInt() and 0xFF) shl 0) +
-            ((this.data[address + 1].toInt() and 0xFF) shl 8) +
-            ((this.data[address + 2].toInt() and 0xFF) shl 16) +
-            ((this.data[address + 3].toInt() and 0xFF) shl 24)
+    private fun loadI32(address: Int): Int {
+        requireRange(address, address + 4)
+        return ((this.data[address + 0].toInt() and 0xFF) shl 0) +
+                ((this.data[address + 1].toInt() and 0xFF) shl 8) +
+                ((this.data[address + 2].toInt() and 0xFF) shl 16) +
+                ((this.data[address + 3].toInt() and 0xFF) shl 24)
+    }
 
-    private fun loadI64(address: Int): Long = ((this.data[address + 0].toLong() and 0xFF) shl 0) +
-            ((this.data[address + 1].toLong() and 0xFF) shl 8) +
-            ((this.data[address + 2].toLong() and 0xFF) shl 16) +
-            ((this.data[address + 3].toLong() and 0xFF) shl 24) +
-            ((this.data[address + 4].toLong() and 0xFF) shl 32) +
-            ((this.data[address + 5].toLong() and 0xFF) shl 40) +
-            ((this.data[address + 6].toLong() and 0xFF) shl 48) +
-            ((this.data[address + 7].toLong() and 0xFF) shl 56)
+    private fun loadI64(address: Int): Long {
+        requireRange(address, address + 8)
+        return ((this.data[address + 0].toLong() and 0xFF) shl 0) +
+                ((this.data[address + 1].toLong() and 0xFF) shl 8) +
+                ((this.data[address + 2].toLong() and 0xFF) shl 16) +
+                ((this.data[address + 3].toLong() and 0xFF) shl 24) +
+                ((this.data[address + 4].toLong() and 0xFF) shl 32) +
+                ((this.data[address + 5].toLong() and 0xFF) shl 40) +
+                ((this.data[address + 6].toLong() and 0xFF) shl 48) +
+                ((this.data[address + 7].toLong() and 0xFF) shl 56)
+    }
 
     override fun equals(other: Any?): Boolean {
         return (other is Memory) && (min == other.min) && (max == other.max) && data.contentEquals(
@@ -156,11 +164,8 @@ class Memory(var min: Int, val max: Int, var data: ByteArray = ByteArray(PAGE_SI
     }
 
     private fun safeOffset(address: Int, offset: Int): Int {
-        if (offset < 0) {
-            throw Error()
-        }
-        if (address < 0) {
-            throw Error()
+        if ((offset < 0) || (address < 0)) {
+            throw Error("Invalid memory location  {address: $address, offset: $offset}")
         }
         return Math.addExact(address, offset)
     }
