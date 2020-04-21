@@ -233,7 +233,8 @@ fun fillTable(module: Module, contents: ModuleContents) {
     val elements = contents.elements ?: listOf()
 
     for (element in elements) {
-        val offset = evaluateOffsset(element.offset, Module(name = "<constexpr>"))
+        // NOTE: globals can be access in the offset exprs.
+        val offset = evaluateOffsset(element.offset, Module(name = "<constexpr>", globals = module.globals))
 
         for ((index, funcIdx) in element.init.withIndex()) {
             module.table[offset + index] = module.refFunction(funcIdx)

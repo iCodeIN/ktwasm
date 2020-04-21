@@ -12,7 +12,7 @@ fun parseElementSection(contents: ModuleContents, parser: ByteParser) {
 fun parseElement(parser: ByteParser, types: List<FuncType>): ElementDef {
     val table = parseU32(parser)
     if (table != 0) {
-        throw Error()
+        throw Error("Cannot handle table index $table != 0")
     }
 
     assert(table == 0) { "ATM only table 0 can be addressed (found: $table)" }
