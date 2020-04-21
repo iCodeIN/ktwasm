@@ -23,10 +23,10 @@ data class Spec(val steps: List<Step>) {
     }
 }
 
-fun parseSpec(fileloader: FileLoader, spec: String, ignore: Set<String>): Spec {
+fun parseSpec(fileloader: FileLoader, spec: String, ignore: Set<String>, path: String = "binary"): Spec {
     val actions: MutableList<Step> = mutableListOf()
 
-    for (command in readCommands(fileloader, spec)) {
+    for (command in readCommands(fileloader, spec, path)) {
         val type = command.get("type").asText()
         val line = command.getOrNull("line")?.asInt() ?: 0
 
@@ -36,7 +36,7 @@ fun parseSpec(fileloader: FileLoader, spec: String, ignore: Set<String>): Spec {
 
         if (type == "module") {
             val filename = command.get("filename").asText()
-            actions.add(makeLoadModuleAction(fileloader, filename, file = spec, line = line))
+            actions.add(makeLoadModuleAction(fileloader, path, filename, file = spec, line = line))
 
             if (command.has("name")) {
                 val name = command.get("name").asText().trimStart('$')
@@ -76,18 +76,18 @@ fun parseSpec(fileloader: FileLoader, spec: String, ignore: Set<String>): Spec {
     return Spec(actions)
 }
 
-fun readCommands(fileloader: FileLoader, spec: String): JsonNode {
-    val fullpath = File("binary", "${spec}.json").toString()
+fun readCommands(fileloader: FileLoader, spec: String, path: String = "binary"): JsonNode {
+    val fullpath = File(path, "${spec}.json").toString()
     val lines = String(fileloader.readBytes(fullpath))
     val tree = ObjectMapper().readTree(lines)
 
     return tree.get("commands").also { assert(it.isArray) }
 }
 
-fun makeLoadModuleAction(fileloader: FileLoader, filename: String, file: String, line: Int): Step =
+fun makeLoadModuleAction(fileloader: FileLoader, path: String, filename: String, file: String, line: Int): Step =
     { env ->
         try {
-            val fullpath = File("binary", filename).toString()
+            val fullpath = File(path, filename).toString()
             val data = fileloader.readBytes(fullpath)
 
             env[""] = parseBinaryModule(filename, data, MapEnvironment(env)).also { it.init() }
@@ -188,23 +188,32 @@ fun parseExpected(node: JsonNode): List<WasmValue> {
     return node.map(::parseJsonValue).toList()
 }
 
-fun parseJsonValue(node: JsonNode): WasmValue {
-    val data = node
-        .getOrNull("value")
-        ?.let { BigInteger(it.asText()).toLong() }
-
-    val type = node.get("type").asText()
-    return when (type) {
-        "i32" -> I32Value(data?.toInt() ?: 0)
-        "i64" -> I64Value(data ?: 0)
-        "f32" -> F32Value(data?.let {
-            Float.fromBits(it.toInt())
-        } ?: Float.NaN)
-        "f64" -> F64Value(data?.let {
-            Double.fromBits(it)
-        } ?: Double.NaN)
-        else -> throw Error("Unknown value type $type")
+fun parseJsonValue(node: JsonNode): WasmValue = when (val type = node.get("type").asText()) {
+    "i32" -> {
+        val value = node.getOrNull("value")?.asText() ?: "0"
+        I32Value(BigInteger(value).toInt())
     }
+    "i64" -> {
+        val value = node.getOrNull("value")?.asText() ?: "0"
+        I64Value(BigInteger(value).toLong())
+    }
+    "f32" -> {
+        val value = node.getOrNull("value")?.asText() ?: "nan:any"
+        if (value.startsWith("nan:")) {
+            F32Value(Float.NaN)
+        } else {
+            F32Value(Float.fromBits(BigInteger(value).toInt()))
+        }
+    }
+    "f64" -> {
+        val value = node.getOrNull("value")?.asText() ?: "nan:any"
+        if (value.startsWith("nan:")) {
+            F64Value(Double.NaN)
+        } else {
+            F64Value(Double.fromBits(BigInteger(value).toLong()))
+        }
+    }
+    else -> throw Error("Unknown value type $type")
 }
 
 class SpectestNamespace : Namespace {
