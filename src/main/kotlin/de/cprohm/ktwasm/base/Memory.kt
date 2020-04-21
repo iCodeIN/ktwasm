@@ -123,7 +123,10 @@ class Memory(var min: Int, val max: Int, var data: ByteArray = ByteArray(PAGE_SI
     fun loadI32(address: Int, offset: Int): Int = loadI32(safeOffset(address, offset))
     fun loadI64(address: Int, offset: Int): Long = loadI64(safeOffset(address, offset))
 
-    private fun loadI8(address: Int): Byte = this.data[address]
+    private fun loadI8(address: Int): Byte {
+        requireRange(address, address + 1)
+        return this.data[address]
+    }
 
     // Short does not seem to support bitwise and
     private fun loadI16(address: Int): Short {
