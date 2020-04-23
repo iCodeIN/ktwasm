@@ -493,7 +493,19 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
             // 0x6C
             is I32Mul -> pushI32(args[1].toI32() * args[0].toI32())
             // 0x6D
-            is I32DivS -> pushI32(args[1].toI32() / args[0].toI32())
+            is I32DivS -> {
+                val a = args[0].toI32()
+                val b = args[1].toI32()
+                val res = b / a
+
+                // NOTE: for res == 0 && b != 0 can happen for truncation
+                // NOTE: the signs are degenerate for zeros
+                if ((b != 0) && (res != 0) && (((a > 0) xor (b > 0)) == (res > 0))) {
+                    throw Error("Integer overflow")
+                }
+
+                pushI32(res)
+            }
             // 0x6E
             is I32DivU -> pushI32(I32.divU(args[1].toI32(), args[0].toI32()))
             // 0x6F
@@ -530,7 +542,19 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
             // 0x7E
             is I64Mul -> pushI64(args[1].toI64() * args[0].toI64())
             // 0x7F
-            is I64DivS -> pushI64(args[1].toI64() / args[0].toI64())
+            is I64DivS -> {
+                val a = args[0].toI64()
+                val b = args[1].toI64()
+                val res = b / a
+
+                // NOTE: for res == 0 && b != 0 can happen for truncation
+                // NOTE: the signs are degenerate for zeros
+                if ((b != 0L) && (res != 0L) && (((a > 0L) xor (b > 0L)) == (res > 0L))) {
+                    throw Error("Integer overflow")
+                }
+
+                pushI64(res)
+            }
             // 0x80
             is I64DivU -> pushI64(I64.divU(args[1].toI64(), args[0].toI64()))
             // 0x81
@@ -615,25 +639,76 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
             // 0xA7
             is I32WrapI64 -> pushI32(args[0].toI64().toInt())
             // 0xA8
-            is I32TruncF32S -> pushI32(args[0].toF32().toInt())
+            is I32TruncF32S -> {
+                val arg = args[0].toF32().assertFinite()
+
+                // constants copied from int def
+                if ((arg < -2147483648.0) || (arg > 2147483647.0)) {
+                    throw Error("Integer overflow during I32TruncF32S")
+                }
+                pushI32(arg.toInt())
+            }
             // 0xA9
-            is I32TruncF32U -> pushI32(I32.fromF32U(args[0].toF32()))
+            is I32TruncF32U -> {
+                val arg = args[0].toF32().assertFinite()
+                // NOTE: since trunc rounds towards zero, the limit is -1.0
+                if ((arg <= -1.0f) || (arg > 4294967295.0)) {
+                    throw Error("Integer overflow during I32TruncF32U")
+                }
+                pushI32(I32.fromF32U(arg))
+            }
             // 0xAA
-            is I32TruncF64S -> pushI32(args[0].toF64().toInt())
+            is I32TruncF64S -> {
+                val arg = args[0].toF64().assertFinite()
+                if ((arg < -2147483648.0) || (arg > 2147483647.0)) {
+                    throw Error("Integer overflow during I32TruncF64S")
+                }
+                pushI32(arg.toInt())
+            }
             // 0xAB
-            is I32TruncF64U -> pushI32(I32.fromF64U(args[0].toF64()))
+            is I32TruncF64U -> {
+                val arg = args[0].toF64().assertFinite()
+                if ((arg <= -1.0f) || (arg > 4294967295.0)) {
+                    throw Error("Integer overflow during I32TruncF64U")
+                }
+                pushI32(I32.fromF64U(arg))
+            }
             // 0xAC
             is I64ExtendI32S -> pushI64(I64.extendS(args[0].toI32()))
             // 0xAD
             is I64ExtendI32U -> pushI64(I64.extendU(args[0].toI32()))
             // 0xAE
-            is I64TruncF32S -> pushI64(args[0].toF32().toLong())
+            is I64TruncF32S -> {
+                val arg = args[0].toF32().assertFinite()
+                if ((arg < -9223372036854775808.0) || (arg >= 9223372036854775808.0)) {
+                    throw Error("Integer overflow during I64TruncF32S")
+                }
+                pushI64(arg.toLong())
+            }
             // 0xAF
-            is I64TruncF32U -> pushI64(I64.fromF32U(args[0].toF32()))
+            is I64TruncF32U -> {
+                val arg = args[0].toF32().assertFinite()
+                if ((arg <= -1.0f) || (arg >= 18446744073709551616.0)) {
+                    throw Error("Integer overflow during I64TruncF32U")
+                }
+                pushI64(I64.fromF32U(arg))
+            }
             // 0xB0
-            is I64TruncF64S -> pushI64(args[0].toF64().toLong())
+            is I64TruncF64S -> {
+                val arg = args[0].toF64().assertFinite()
+                if ((arg < -9223372036854775808.0) || (arg >= 9223372036854775808.0)) {
+                    throw Error("Integer overflow during I64TruncF64S")
+                }
+                pushI64(arg.toLong())
+            }
             // 0xB1
-            is I64TruncF64U -> pushI64(I64.fromF64U(args[0].toF64()))
+            is I64TruncF64U -> {
+                val arg = args[0].toF64().assertFinite()
+                if ((arg <= -1.0f) || (arg >= 18446744073709551616.0)) {
+                    throw Error("Integer overflow during I64TruncF64U")
+                }
+                pushI64(I64.fromF64U(arg))
+            }
             // 0xB2
             is F32ConvertI32S -> pushF32(args[0].toI32().toFloat())
             // 0xB3
@@ -722,4 +797,18 @@ fun Long.toType(type: Type): WasmValue = when (type) {
     Type.F32 -> this.toF32Value()
     Type.F64 -> this.toF64Value()
     else -> throw Error()
+}
+
+fun Float.assertFinite(): Float {
+    if (!this.isFinite()) {
+        throw Error("Expect finite float")
+    }
+    return this
+}
+
+fun Double.assertFinite(): Double {
+    if (!this.isFinite()) {
+        throw Error("Expect finite float")
+    }
+    return this
 }

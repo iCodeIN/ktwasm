@@ -104,7 +104,10 @@ sealed class WasmValue {
 
 data class I32Value(val value: Int) : WasmValue()
 data class I64Value(val value: Long) : WasmValue()
-data class F32Value(val value: Float) : WasmValue()
+data class F32Value(val value: Float) : WasmValue() {
+    override fun toString(): String = "F32Value($value; ${value.toRawBits()})"
+}
+
 data class F64Value(val value: Double) : WasmValue()
 data class UnitValue(val value: Unit = Unit) : WasmValue()
 

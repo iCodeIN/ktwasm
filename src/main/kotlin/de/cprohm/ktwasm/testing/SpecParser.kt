@@ -116,7 +116,11 @@ fun makeAssertReturnAction(
     file: String, line: Int
 ): Step =
     { env ->
-        val actual = action.invoke(env)
+        val actual = try {
+            action.invoke(env)
+        } catch (e: Throwable) {
+            throw Error("Error during execution of $file:$line: $e", e)
+        }
         if (actual != expected) {
             throw AssertionError("Expected $expected, found $actual ($file:$line)")
         }
