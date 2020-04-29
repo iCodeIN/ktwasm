@@ -243,9 +243,9 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
             // 0x29
             is I64Load -> pushI64(module.memory.loadI64(args[0].toI32(), instruction.offset))
             // 0x2A
-            is F32Load -> pushF32(module.memory.loadF32(args[0].toI32(), instruction.offset))
+            is F32Load -> pushF32(Float.fromBits(module.memory.loadI32(args[0].toI32(), instruction.offset)))
             // 0x2B
-            is F64Load -> pushF64(module.memory.loadF64(args[0].toI32(), instruction.offset))
+            is F64Load -> pushF64(Double.fromBits(module.memory.loadI64(args[0].toI32(), instruction.offset)))
             // 0x2C
             is I32Load8S -> pushI32(
                 I32.extendS(
@@ -349,12 +349,12 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
                 args[0].toI64()
             )
             // 0x38
-            is F32Store -> module.memory.storeF32(args[1].toI32(), 0, args[0].toF32())
+            is F32Store -> module.memory.storeI32(args[1].toI32(), instruction.offset, args[0].toI32())
             // 0x39
-            is F64Store -> module.memory.storeF64(
+            is F64Store -> module.memory.storeI64(
                 args[1].toI32(),
                 instruction.offset,
-                args[0].toF64()
+                args[0]
             )
             // 0x3A
             is I32Store8 -> module.memory.storeI8(
@@ -716,7 +716,7 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
             // 0xB4
             is F32ConvertI64S -> pushF32(args[0].toI64().toFloat())
             // 0xB5
-            is F32ConvertI64U -> pushF32(I64.convertToF32U(args[0].toI64()))
+            is F32ConvertI64U -> push(F32ConvertI64U.call(args[0]))
             // 0xB6
             is F32DemoteF64 -> pushF32(args[0].toF64().toFloat())
             // 0xB7
@@ -777,6 +777,10 @@ fun Long.toI32(): Int = this.toInt()
 fun Long.toI64(): Long = this
 fun Long.toF32(): Float = Float.fromBits(this.toInt())
 fun Long.toF64(): Double = Double.fromBits(this)
+
+fun Int.toI64(): Long = this.toLong()
+fun Float.toI64(): Long = this.toRawBits().toLong()
+fun Double.toI64(): Long = this.toRawBits()
 
 fun Long.toI32Value(): I32Value = I32Value(this.toI32())
 fun Long.toI64Value(): I64Value = I64Value(this.toI64())

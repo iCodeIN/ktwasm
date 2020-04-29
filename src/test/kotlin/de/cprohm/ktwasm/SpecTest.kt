@@ -39,10 +39,10 @@ class TestWasmSpecs {
         val specs = listOf(
             "address", "align", "binary-leb128", "binary", "block", "br", "break-drop", "br_if", "br_table", "call",
             "call_indirect", "comments", "const", "conversions", "custom", "data", "elem", "endianness", "exports",
-            "f32", "f32_bitwise", "f32_cmp", "f64", "f64_bitwise", "f64_cmp", "fac", "float _exprs", "float_literals",
+            "f32", "f32_bitwise", "f32_cmp", "f64", "f64_bitwise", "f64_cmp", "fac", "float_exprs", "float_literals",
             "float_memory", "float_misc", "forward", "func", "func_ptrs", "globals", "i32", "i64", "if", "imports",
             "inline-module", "int_exprs", "int_literals", "labels", "left-to-right", "linking", "load", "local_get",
-            "local_set", "local_tee", "loop", "memory", "memory_ grow", "memory_redundancy", "memory_size",
+            "local_set", "local_tee", "loop", "memory", "memory_grow", "memory_redundancy", "memory_size",
             "memory_trap", "names", "nop", "return", "select", "skip-stack-guard-page", "stack", "start", "store",
             "switch", "token", "traps", "type", "unreachable", "unreached-invalid", "unwind", "utf8-custom-section-id",
             "utf8-import-field", "utf8-import- module", "utf8-invalid-encoding"

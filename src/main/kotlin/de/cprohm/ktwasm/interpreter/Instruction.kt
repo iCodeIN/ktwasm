@@ -559,7 +559,11 @@ class F32ConvertI32U : PrimtiveInstruction(1)
 class F32ConvertI64S : PrimtiveInstruction(1)
 
 // 0xB5
-class F32ConvertI64U : PrimtiveInstruction(1)
+class F32ConvertI64U : PrimtiveInstruction(1) {
+    companion object {
+        fun call(arg: Long): Long = I64.convertToF32U(arg.toI64()).toI64()
+    }
+}
 
 // 0xB6
 class F32DemoteF64 : PrimtiveInstruction(1)
