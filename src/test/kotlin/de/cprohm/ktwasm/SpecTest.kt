@@ -21,7 +21,13 @@ import org.junit.runners.AllTests
 class TestWasmSpecs {
     companion object {
         @JvmStatic
-        fun suite(): TestSuite = TestSuite().also { addSpecs(it, specs, ignore, path = "core-1.1") }
+        fun suite(): TestSuite = TestSuite().also {
+            for (name in specs) {
+                val spec = parseSpec(LocalFileLoader(), name, ignore = ignore, path = "core-1.1")
+                val test = makeTestCase(name, spec)
+                it.addTest(test)
+            }
+        }
 
         val ignore = setOf<String>(
             // NOTE: the rounding logic of the JVM and the webassembly spec seems different,
@@ -37,7 +43,7 @@ class TestWasmSpecs {
         )
 
         val specs = listOf(
-            "address", "align", "binary-leb128", "binary", "block", "br", "break-drop", "br_if", "br_table", "call",
+            "address", "align", "binary-leb128", "binary", "block", "br", "br_if", "br_table", "break-drop", "call",
             "call_indirect", "comments", "const", "conversions", "custom", "data", "elem", "endianness", "exports",
             "f32", "f32_bitwise", "f32_cmp", "f64", "f64_bitwise", "f64_cmp", "fac", "float_exprs", "float_literals",
             "float_memory", "float_misc", "forward", "func", "func_ptrs", "globals", "i32", "i64", "if", "imports",
@@ -45,21 +51,7 @@ class TestWasmSpecs {
             "local_set", "local_tee", "loop", "memory", "memory_grow", "memory_redundancy", "memory_size",
             "memory_trap", "names", "nop", "return", "select", "skip-stack-guard-page", "stack", "start", "store",
             "switch", "token", "traps", "type", "unreachable", "unreached-invalid", "unwind", "utf8-custom-section-id",
-            "utf8-import-field", "utf8-import- module", "utf8-invalid-encoding"
-        )
-    }
-}
-
-
-fun addSpecs(suite: TestSuite, specs: List<String>, ignore: Set<String>, path: String = "binary") {
-    for (name in specs) {
-        val spec = try {
-            parseSpec(LocalFileLoader(), name, ignore = ignore, path = path)
-        } catch (e: FileNotFoundError) {
-            continue
-        }
-        val test = makeTestCase(name, spec)
-        suite.addTest(test)
+            "utf8-import-field", "utf8-import-module", "utf8-invalid-encoding")
     }
 }
 
@@ -80,6 +72,5 @@ fun makeTestCase(name: String, spec: Spec): TestCase =
             result?.endTest(this)
         }
     }
-
 
 class FileNotFoundError(message: String) : Error(message)
