@@ -1,6 +1,7 @@
 package de.cprohm.ktwasm.interpreter
 
-@OptIn(kotlin.ExperimentalStdlibApi::class, kotlin.ExperimentalUnsignedTypes::class)
+// Use deprecated UseExperimental to compile with Android
+@UseExperimental(ExperimentalStdlibApi::class, ExperimentalUnsignedTypes::class)
 object I32 {
     fun remU(a: Int, b: Int): Int {
         return (a.toUInt() % b.toUInt()).toInt()
@@ -70,7 +71,8 @@ object I32 {
     fun extendU(a: Short): Int = a.toInt() and 0xFF_FF
 }
 
-@OptIn(kotlin.ExperimentalStdlibApi::class, kotlin.ExperimentalUnsignedTypes::class)
+// Use deprecated UseExperimental to compile with Android
+@UseExperimental(ExperimentalStdlibApi::class, ExperimentalUnsignedTypes::class)
 object I64 {
     fun remU(a: Long, b: Long): Long {
         return (a.toULong() % b.toULong()).toLong()
