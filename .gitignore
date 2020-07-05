@@ -8,3 +8,7 @@
 
 # vim temporary files
 .*.swp
+
+/.classpath
+/.project
+/.settings/
