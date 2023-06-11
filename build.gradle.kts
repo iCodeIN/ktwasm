@@ -12,9 +12,8 @@ repositories { mavenCentral() }
 
 kotlin {
   jvm {
-    jvmToolchain(11)
-    withJava()
-    testRuns["test"].executionTask.configure { useJUnitPlatform() }
+    //withJava()
+    //testRuns["test"].executionTask.configure { useJUnitPlatform() }
   }
 
   js(IR) {
