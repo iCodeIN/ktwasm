@@ -38,7 +38,7 @@ fun parseExpression(parser: ByteParser, types: List<FuncType>): List<Instruction
 
   Loop@ while (true) {
     val instr =
-        when (val opcode = parser.readByte().toUInt().toInt()) {
+        when (val opcode = parser.readByte().toInt() and 0xFF) {
           0x00 -> Unreachable()
           0x01 -> NoOp()
           0x02 -> {
