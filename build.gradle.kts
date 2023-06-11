@@ -6,7 +6,6 @@ plugins {
 }
 
 group = "com.github.yeicor"
-
 version = "1.0.0-SNAPSHOT"
 
 repositories { mavenCentral() }
@@ -58,7 +57,7 @@ publishing {
         ?.let { (githubUsername, githubPassword) ->
           maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/Yeicor/ktmpwasm")
+            url = uri("https://maven.pkg.github.com/Yeicor/${project.name}")
             credentials {
               username = githubUsername
               password = githubPassword
