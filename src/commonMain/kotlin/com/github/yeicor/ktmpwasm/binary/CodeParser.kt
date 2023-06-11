@@ -37,8 +37,9 @@ fun parseExpression(parser: ByteParser, types: List<FuncType>): List<Instruction
   }
 
   Loop@ while (true) {
+    // Read the next byte (opcode), as an unsigned int
     val instr =
-        when (val opcode = parser.readByte().toInt() and 0xFF) {
+        when (val opcode = parser.readByte().toUByte().toInt()) {
           0x00 -> Unreachable()
           0x01 -> NoOp()
           0x02 -> {
@@ -256,7 +257,7 @@ fun parseExpression(parser: ByteParser, types: List<FuncType>): List<Instruction
           0xBD -> I64ReinterpretF64()
           0xBE -> F32ReinterpretI32()
           0XBF -> F64ReinterpretI64()
-          else -> throw Error("Unknown opcode ${opcode.toString(16)}")
+          else -> throw Error("Unknown opcode ${opcode.toUByte().toString(16)}")
         }
 
     result.add(instr)
