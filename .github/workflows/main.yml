@@ -6,7 +6,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
+        os: [ "ubuntu-latest" ]
+        # TODO: (how to publish together? os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
         # TODO: arch: [ "x64", "arm64" ]
 
     runs-on: "${{ matrix.os }}"
