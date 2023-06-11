@@ -48,7 +48,13 @@ kotlin {
 publishing {
   repositories {
     (System.getenv("GITHUB_ACTOR") to System.getenv("GITHUB_TOKEN"))
-        .takeIf { it.first != null && it.second != null }
+        .takeIf {
+          if (it.first == null)
+              logger.warn("GITHUB_ACTOR is not set, disabling GitHubPackages publishing")
+          if (it.second == null)
+              logger.warn("GITHUB_TOKEN is not set, disabling GitHubPackages publishing")
+          it.first != null && it.second != null
+        }
         ?.let { (githubUsername, githubPassword) ->
           maven {
             name = "GitHubPackages"
