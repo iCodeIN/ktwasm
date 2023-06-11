@@ -9,7 +9,7 @@ Usage:
 ```kotlin
 import com.github.yeicor.ktwasm.api.*
 
-val module = parseModule(ByteArray(/* wasm file data */), object : Environment { /* imports */ })
+val module = parseModule(ByteArray(/* wasm file data */), MapEnvironment(mapOf(/* imports */)))
 val add = module.lookupFunction("add", null)
 
 assert(add(1, 2) == 3)
