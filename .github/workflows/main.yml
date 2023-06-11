@@ -29,3 +29,5 @@ jobs:
     - run: "./gradlew ktfmtCheck publish --info --stacktrace"
       env:
         GITHUB_TOKEN: "${{secrets.GITHUB_TOKEN}}"
+        REPSY_USER: "${{secrets.REPSY_USER}}"
+        REPSY_PASS: "${{secrets.REPSY_PASS}}"

@@ -6,15 +6,13 @@ plugins {
 }
 
 group = "com.github.yeicor"
+
 version = "1.0.0-SNAPSHOT"
 
 repositories { mavenCentral() }
 
 kotlin {
-  jvm {
-    //withJava()
-    //testRuns["test"].executionTask.configure { useJUnitPlatform() }
-  }
+  jvm {}
 
   js(IR) {
     browser {}
@@ -49,7 +47,7 @@ publishing {
         .takeIf {
           if (it.first == null)
               logger.warn("GITHUB_ACTOR is not set, disabling GitHubPackages publishing")
-          if (it.second == null)
+          else if (it.second == null)
               logger.warn("GITHUB_TOKEN is not set, disabling GitHubPackages publishing")
           it.first != null && it.second != null
         }
@@ -60,6 +58,23 @@ publishing {
             credentials {
               username = githubUsername
               password = githubPassword
+            }
+          }
+        }
+    (System.getenv("REPSY_USER") to System.getenv("REPSY_PASS"))
+        .takeIf {
+          if (it.first == null) logger.warn("REPSY_USER is not set, disabling Repsy publishing")
+          else if (it.second == null)
+              logger.warn("REPSY_TOKEN is not set, disabling Repsy publishing")
+          it.first != null && it.second != null
+        }
+        ?.let { (repsyUsername, repsyPassword) ->
+          maven {
+            name = "Repsy"
+            url = uri("https://repsy.io/mvn/yeicor/github-public/")
+            credentials {
+              username = repsyUsername
+              password = repsyPassword
             }
           }
         }
