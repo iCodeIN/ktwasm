@@ -256,7 +256,12 @@ fun parseExpression(parser: ByteParser, types: List<FuncType>): List<Instruction
           0xBC -> I32ReinterpretF32()
           0xBD -> I64ReinterpretF64()
           0xBE -> F32ReinterpretI32()
-          0XBF -> F64ReinterpretI64()
+          0xBF -> F64ReinterpretI64()
+          0xC0 -> I32Extend8S()
+          0xC1 -> I32Extend16S()
+          0xC2 -> I64Extend8S()
+          0xC3 -> I64Extend16S()
+          0xC4 -> I64Extend32S()
           else -> throw Error("Unknown opcode ${opcode.toUByte().toString(16)}")
         }
 

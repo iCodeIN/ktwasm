@@ -661,6 +661,16 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
           is F32ReinterpretI32 -> pushF32(Float.fromBits(args[0].toI32()))
           // 0xBE
           is F64ReinterpretI64 -> pushF64(Double.fromBits(args[0].toI64()))
+          // 0xC0
+          is I32Extend8S -> pushI32(args[0].toI32().toByte().toInt())
+          // 0xC1
+          is I32Extend16S -> pushI32(args[0].toI32().toShort().toInt())
+          // 0xC2
+          is I64Extend8S -> pushI64(args[0].toI64().toByte().toLong())
+          // 0xC3
+          is I64Extend16S -> pushI64(args[0].toI64().toShort().toLong())
+          // 0xC4
+          is I64Extend32S -> pushI64(args[0].toI64().toInt().toLong())
         }
 
     return nextInstruction

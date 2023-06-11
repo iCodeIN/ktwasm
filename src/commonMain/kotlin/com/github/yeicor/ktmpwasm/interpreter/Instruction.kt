@@ -593,3 +593,18 @@ class F32ReinterpretI32 : PrimitiveInstruction(1)
 
 // 0xBF
 class F64ReinterpretI64 : PrimitiveInstruction(1)
+
+// 0xC0
+class I32Extend8S : PrimitiveInstruction(1)
+
+// 0xC1
+class I32Extend16S : PrimitiveInstruction(1)
+
+// 0xC2
+class I64Extend8S : PrimitiveInstruction(1)
+
+// 0xC3
+class I64Extend16S : PrimitiveInstruction(1)
+
+// 0xC4
+class I64Extend32S : PrimitiveInstruction(1)
