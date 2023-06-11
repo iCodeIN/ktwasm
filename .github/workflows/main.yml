@@ -26,6 +26,44 @@ jobs:
 
     - uses: "gradle/gradle-build-action@v2"
 
-    - run: "./gradlew ktfmtCheck publish --info --stacktrace"
+    - run: "./gradlew ktfmtCheck build --info --stacktrace" # Build includes tests
+
+    - run: "./gradlew publish --info --stacktrace"
+      if: "github.ref == 'refs/heads/main'"  # Only publish (snapshots) on the main branch
       env:
         GITHUB_TOKEN: "${{secrets.GITHUB_TOKEN}}"
+
+  delete-old-packages:
+
+    needs: [ "gradle" ]  # This job will run after all instances of the gradle job have completed
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: "read"
+      packages: "write"
+
+    steps:
+
+    - uses: "actions/delete-package-versions@v4"
+      with:
+        package-name: "com.github.yeicor:ktmpwasm"
+        package-type: "maven"
+        num-old-versions-to-delete: 10
+        min-versions-to-keep: 5
+    - uses: "actions/delete-package-versions@v4"
+      with:
+        package-name: "com.github.yeicor:ktmpwasm-jvm"
+        package-type: "maven"
+        num-old-versions-to-delete: 10
+        min-versions-to-keep: 5
+    - uses: "actions/delete-package-versions@v4"
+      with:
+        package-name: "com.github.yeicor:ktmpwasm-native"
+        package-type: "maven"
+        num-old-versions-to-delete: 10
+        min-versions-to-keep: 5
+    - uses: "actions/delete-package-versions@v4"
+      with:
+        package-name: "com.github.yeicor:ktmpwasm-js"
+        package-type: "maven"
+        num-old-versions-to-delete: 10
+        min-versions-to-keep: 5
