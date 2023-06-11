@@ -58,7 +58,7 @@ publishing {
         ?.let { (githubUsername, githubPassword) ->
           maven {
             name = "GitHubPackages"
-            uri("https://maven.pkg.github.com/Yeicor/ktmpwasm")
+            url = uri("https://maven.pkg.github.com/Yeicor/ktmpwasm")
             credentials {
               username = githubUsername
               password = githubPassword
