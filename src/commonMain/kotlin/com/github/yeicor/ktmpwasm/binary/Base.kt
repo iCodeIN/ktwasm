@@ -16,7 +16,8 @@ enum class SectionType {
   START,
   ELEMENT,
   CODE,
-  DATA;
+  DATA,
+  DATA_COUNT;
 
   companion object {
     fun of(x: Byte): SectionType =
@@ -33,6 +34,7 @@ enum class SectionType {
           9 -> ELEMENT
           10 -> CODE
           11 -> DATA
+          12 -> DATA_COUNT
           else -> throw Error("Unknown section type $x")
         }
   }

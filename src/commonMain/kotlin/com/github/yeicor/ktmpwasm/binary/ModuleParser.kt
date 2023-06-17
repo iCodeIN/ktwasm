@@ -20,7 +20,8 @@ fun parseBinaryModule(data: ByteArray, env: Environment = EmptyEnvironment()): M
     val size = parser.readUnsigned().toInt()
 
     when (sectionType) {
-      SectionType.CUSTOM -> {
+      SectionType.CUSTOM,
+      SectionType.DATA_COUNT -> {
         /* do nothing */
       }
       SectionType.TYPE -> parseTypeSection(contents, parser.copy(size))
