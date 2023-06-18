@@ -671,51 +671,6 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
           is I64Extend16S -> pushI64(args[0].toI64().toShort().toLong())
           // 0xC4
           is I64Extend32S -> pushI64(args[0].toI64().toInt().toLong())
-          // 0xFC00 // TODO: These extensions may be wrong
-          is I32TruncSatF32S -> pushI32(args[0].toF32().toInt())
-          // 0xFC01
-          is I32TruncSatF32U -> pushI32(args[0].toF32().toInt())
-          // 0xFC02
-          is I32TruncSatF64S -> pushI32(args[0].toF64().toInt())
-          // 0xFC03
-          is I32TruncSatF64U -> pushI32(args[0].toF64().toInt())
-          // 0xFC04
-          is I64TruncSatF32S -> pushI64(args[0].toF32().toLong())
-          // 0xFC05
-          is I64TruncSatF32U -> pushI64(args[0].toF32().toLong())
-          // 0xFC06
-          is I64TruncSatF64S -> pushI64(args[0].toF64().toLong())
-          // 0xFC07
-          is I64TruncSatF64U -> pushI64(args[0].toF64().toLong())
-          // 0xFC08
-          is MemoryInit -> TODO()
-          // 0xFC09
-          is DataDrop -> TODO()
-          // 0xFC0A
-          is MemoryCopy -> {
-            val dest = args[0].toI32() and 0x7FFFFFFF
-            val src = args[1].toI32() and 0x7FFFFFFF
-            val len = args[2].toI32() and 0x7FFFFFFF
-            println("Copying $len bytes from $src to $dest in memory 0:${module.memory.data.size}")
-            module.memory.store(dest, len, module.memory.load(src, len))
-            pushI32(dest)
-          }
-          // 0xFC0B
-          is MemoryFill -> {
-            val dest = args[0].toI32() and 0x7FFFFFFF
-            val value = args[1].toI32() and 0x7FFFFFFF
-            val len = args[2].toI32() and 0x7FFFFFFF
-            println(
-                "Filling $len bytes at $dest in memory 0:${module.memory.data.size} with $value")
-            module.memory.store(dest, len, ByteArray(len) { value.toByte() })
-            pushI32(dest)
-          }
-          // 0xFC0C
-          is TableInit -> TODO()
-          // 0xFC0D
-          is ElemDrop -> TODO()
-          // 0xFC0E
-          is TableCopy -> TODO()
         }
 
     return nextInstruction
