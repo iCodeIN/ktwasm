@@ -696,6 +696,7 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
             val dest = args[0].toI32() and 0x7FFFFFFF
             val src = args[1].toI32() and 0x7FFFFFFF
             val len = args[2].toI32() and 0x7FFFFFFF
+            println("Copying $len bytes from $src to $dest in memory 0:${module.memory.data.size}")
             module.memory.store(dest, len, module.memory.load(src, len))
             pushI32(dest)
           }
@@ -704,6 +705,8 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
             val dest = args[0].toI32() and 0x7FFFFFFF
             val value = args[1].toI32() and 0x7FFFFFFF
             val len = args[2].toI32() and 0x7FFFFFFF
+            println(
+                "Filling $len bytes at $dest in memory 0:${module.memory.data.size} with $value")
             module.memory.store(dest, len, ByteArray(len) { value.toByte() })
             pushI32(dest)
           }
