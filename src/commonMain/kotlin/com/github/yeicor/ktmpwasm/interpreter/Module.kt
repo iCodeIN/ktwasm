@@ -2,7 +2,8 @@ package com.github.yeicor.ktmpwasm.interpreter
 
 import com.github.yeicor.ktmpwasm.base.*
 
-data class Module(
+data class Module
+constructor(
     val memory: Memory = Memory(0, 0),
     val table: Table = Table(),
     val functions: List<WFunction> = listOf(),

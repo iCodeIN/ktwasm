@@ -97,7 +97,7 @@ object I64 {
   }
 
   fun countLeadingZeroBits(a: Long): Long {
-    return a.countLeadingZeroBits().toLong()
+    @OptIn(kotlin.ExperimentalStdlibApi::class) return a.countLeadingZeroBits().toLong()
   }
 
   fun countTrailingZeroBits(a: Long): Long {

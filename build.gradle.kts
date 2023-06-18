@@ -19,6 +19,10 @@ kotlin {
     nodejs {}
   }
 
+  @Suppress("OPT_IN_USAGE") wasm {
+    d8 {} // The only one that works without any config for now
+  }
+
   val hostOs = System.getProperty("os.name")
   val isMingwX64 = hostOs.startsWith("Windows")
   when {
@@ -36,6 +40,8 @@ kotlin {
     val jvmTest by getting
     val jsMain by getting
     val jsTest by getting
+    val wasmMain by getting
+    val wasmTest by getting
     val nativeMain by getting
     val nativeTest by getting
   }
