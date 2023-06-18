@@ -693,17 +693,17 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
           is DataDrop -> TODO()
           // 0xFC0A
           is MemoryCopy -> {
-            val dest = args[0].toI32()
-            val src = args[1].toI32()
-            val len = args[2].toI32()
+            val dest = args[0].toI32() and 0x7FFFFFFF
+            val src = args[1].toI32() and 0x7FFFFFFF
+            val len = args[2].toI32() and 0x7FFFFFFF
             module.memory.store(dest, len, module.memory.load(src, len))
             pushI32(dest)
           }
           // 0xFC0B
           is MemoryFill -> {
-            val dest = args[0].toI32()
-            val value = args[1].toI32()
-            val len = args[2].toI32()
+            val dest = args[0].toI32() and 0x7FFFFFFF
+            val value = args[1].toI32() and 0x7FFFFFFF
+            val len = args[2].toI32() and 0x7FFFFFFF
             module.memory.store(dest, len, ByteArray(len) { value.toByte() })
             pushI32(dest)
           }
