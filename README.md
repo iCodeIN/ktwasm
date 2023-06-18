@@ -38,3 +38,5 @@ fun main() {
 }
 
 ```
+
+Check out the example [Kraphviz](https://github.com/Yeicor/Kraphviz) project for more information.
