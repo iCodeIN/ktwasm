@@ -687,6 +687,32 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
           is I64TruncSatF64S -> pushI64(args[0].toF64().toLong())
           // 0xFC07
           is I64TruncSatF64U -> pushI64(args[0].toF64().toLong())
+          // 0xFC08
+          is MemoryInit -> TODO()
+          // 0xFC09
+          is DataDrop -> TODO()
+          // 0xFC0A
+          is MemoryCopy -> {
+            val dest = args[0].toI32()
+            val src = args[1].toI32()
+            val len = args[2].toI32()
+            module.memory.store(dest, len, module.memory.load(src, len))
+            pushI32(dest)
+          }
+          // 0xFC0B
+          is MemoryFill -> {
+            val dest = args[0].toI32()
+            val value = args[1].toI32()
+            val len = args[2].toI32()
+            module.memory.store(dest, len, ByteArray(len) { value.toByte() })
+            pushI32(dest)
+          }
+          // 0xFC0C
+          is TableInit -> TODO()
+          // 0xFC0D
+          is ElemDrop -> TODO()
+          // 0xFC0E
+          is TableCopy -> TODO()
         }
 
     return nextInstruction

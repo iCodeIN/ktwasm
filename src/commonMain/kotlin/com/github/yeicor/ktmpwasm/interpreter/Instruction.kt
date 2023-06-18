@@ -632,3 +632,24 @@ class I64TruncSatF64S : PrimitiveInstruction(1)
 
 // 0xFC07
 class I64TruncSatF64U : PrimitiveInstruction(1)
+
+// 0xFC08
+class MemoryInit : PrimitiveInstruction(4)
+
+// 0xFC09
+class DataDrop : PrimitiveInstruction(1)
+
+// 0xFC0A
+class MemoryCopy : PrimitiveInstruction(3)
+
+// 0xFC0B
+class MemoryFill : PrimitiveInstruction(3)
+
+// 0xFC0C
+class TableInit : PrimitiveInstruction(4)
+
+// 0xFC0D
+class ElemDrop : PrimitiveInstruction(1)
+
+// 0xFC0E
+class TableCopy : PrimitiveInstruction(3)

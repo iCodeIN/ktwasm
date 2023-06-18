@@ -272,12 +272,30 @@ fun parseExpression(parser: ByteParser, types: List<FuncType>): List<Instruction
               0x05 -> I64TruncSatF32U()
               0x06 -> I64TruncSatF64S()
               0x07 -> I64TruncSatF64U()
+              0x08 -> MemoryInit()
+              0x09 -> DataDrop()
+              0x0A -> MemoryCopy()
+              0x0B -> MemoryFill()
+              0x0C -> TableInit()
+              0x0D -> ElemDrop()
+              0x0E -> TableCopy()
               else ->
                   throw Error(
-                      "Unknown opcode ${opcode.toUByte().toString(16)}${subOpcode.toUByte().toString(16)}")
+                      "Unknown opcode ${opcode.toUByte().toString(16).padStart(2, '0')}" +
+                          subOpcode.toUByte().toString(16).padStart(2, '0'))
             }
           }
-          else -> throw Error("Unknown opcode ${opcode.toUByte().toString(16)}")
+          0xFB,
+          0xFD,
+          0xFE -> {
+            when (val subOpcode = parser.readByte().toUByte().toInt()) {
+              else ->
+                  throw Error(
+                      "Unknown opcode ${opcode.toUByte().toString(16).padStart(2, '0')}" +
+                          subOpcode.toUByte().toString(16).padStart(2, '0'))
+            }
+          }
+          else -> throw Error("Unknown opcode ${opcode.toUByte().toString(16).padStart(2, '0')}")
         }
 
     result.add(instr)
