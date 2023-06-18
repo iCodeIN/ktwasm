@@ -608,3 +608,27 @@ class I64Extend16S : PrimitiveInstruction(1)
 
 // 0xC4
 class I64Extend32S : PrimitiveInstruction(1)
+
+// 0xFC00
+class I32TruncSatF32S : PrimitiveInstruction(1)
+
+// 0xFC01
+class I32TruncSatF32U : PrimitiveInstruction(1)
+
+// 0xFC02
+class I32TruncSatF64S : PrimitiveInstruction(1)
+
+// 0xFC03
+class I32TruncSatF64U : PrimitiveInstruction(1)
+
+// 0xFC04
+class I64TruncSatF32S : PrimitiveInstruction(1)
+
+// 0xFC05
+class I64TruncSatF32U : PrimitiveInstruction(1)
+
+// 0xFC06
+class I64TruncSatF64S : PrimitiveInstruction(1)
+
+// 0xFC07
+class I64TruncSatF64U : PrimitiveInstruction(1)

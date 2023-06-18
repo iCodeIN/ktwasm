@@ -671,6 +671,22 @@ class ExecutionContext(val module: Module, sizeLocals: Int = 0) {
           is I64Extend16S -> pushI64(args[0].toI64().toShort().toLong())
           // 0xC4
           is I64Extend32S -> pushI64(args[0].toI64().toInt().toLong())
+          // 0xFC00 // TODO: These extensions may be wrong
+          is I32TruncSatF32S -> pushI32(args[0].toF32().toInt())
+          // 0xFC01
+          is I32TruncSatF32U -> pushI32(args[0].toF32().toInt())
+          // 0xFC02
+          is I32TruncSatF64S -> pushI32(args[0].toF64().toInt())
+          // 0xFC03
+          is I32TruncSatF64U -> pushI32(args[0].toF64().toInt())
+          // 0xFC04
+          is I64TruncSatF32S -> pushI64(args[0].toF32().toLong())
+          // 0xFC05
+          is I64TruncSatF32U -> pushI64(args[0].toF32().toLong())
+          // 0xFC06
+          is I64TruncSatF64S -> pushI64(args[0].toF64().toLong())
+          // 0xFC07
+          is I64TruncSatF64U -> pushI64(args[0].toF64().toLong())
         }
 
     return nextInstruction

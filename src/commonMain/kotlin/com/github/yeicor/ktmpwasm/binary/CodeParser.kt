@@ -262,6 +262,21 @@ fun parseExpression(parser: ByteParser, types: List<FuncType>): List<Instruction
           0xC2 -> I64Extend8S()
           0xC3 -> I64Extend16S()
           0xC4 -> I64Extend32S()
+          0xFC -> {
+            when (val subOpcode = parser.readByte().toUByte().toInt()) {
+              0x00 -> I32TruncSatF32S()
+              0x01 -> I32TruncSatF32U()
+              0x02 -> I32TruncSatF64S()
+              0x03 -> I32TruncSatF64U()
+              0x04 -> I64TruncSatF32S()
+              0x05 -> I64TruncSatF32U()
+              0x06 -> I64TruncSatF64S()
+              0x07 -> I64TruncSatF64U()
+              else ->
+                  throw Error(
+                      "Unknown opcode ${opcode.toUByte().toString(16)}${subOpcode.toUByte().toString(16)}")
+            }
+          }
           else -> throw Error("Unknown opcode ${opcode.toUByte().toString(16)}")
         }
 
