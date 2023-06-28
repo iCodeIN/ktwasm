@@ -18,7 +18,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 // ...
-                implementation("com.github.yeicor:ktmpwasm:1.0.0-SNAPSHOT")
+                implementation("com.github.yeicor:ktmpwasm:1.0.0")
             }
         }
     }
